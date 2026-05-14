@@ -9,20 +9,68 @@ export const getProducts = async (req, res) => {
   }
 };
 
+export const getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.json(product);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to get product details" });
+  }
+};
+
 export const createProduct = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
+    const productData = { ...req.body };
+    
+    if (productData.sizes && typeof productData.sizes === "string") {
+      try {
+        productData.sizes = JSON.parse(productData.sizes);
+      } catch (e) {
+        console.error("Error parsing sizes:", e);
+      }
+    }
+
+    if (req.files && req.files.length > 0) {
+      const filePaths = req.files.map(file => `/uploads/${file.filename}`);
+      productData.images = filePaths;
+      productData.image = filePaths[0]; // Main image
+    }
+    
+    const product = await Product.create(productData);
     res.status(201).json(product);
   } catch (error) {
-    res.status(400).json({ message: "Failed to create product", error });
+    console.error("Product creation error:", error);
+    res.status(400).json({ 
+      message: error.message || "Failed to create product", 
+      details: error.errors 
+    });
   }
 };
 
 export const updateProduct = async (req, res) => {
   try {
+    const productData = { ...req.body };
+    
+    if (productData.sizes && typeof productData.sizes === "string") {
+      try {
+        productData.sizes = JSON.parse(productData.sizes);
+      } catch (e) {
+        console.error("Error parsing sizes:", e);
+      }
+    }
+
+    if (req.files && req.files.length > 0) {
+      const filePaths = req.files.map(file => `/uploads/${file.filename}`);
+      productData.images = filePaths;
+      productData.image = filePaths[0];
+    }
+
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      productData,
       { new: true }
     );
 
@@ -32,7 +80,11 @@ export const updateProduct = async (req, res) => {
 
     res.json(product);
   } catch (error) {
-    res.status(400).json({ message: "Failed to update product" });
+    console.error("Product update error:", error);
+    res.status(400).json({ 
+      message: error.message || "Failed to update product", 
+      details: error.errors 
+    });
   }
 };
 
