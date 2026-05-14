@@ -34,7 +34,7 @@ export const createProduct = async (req, res) => {
     }
 
     if (req.files && req.files.length > 0) {
-      const filePaths = req.files.map(file => `/uploads/${file.filename}`);
+      const filePaths = req.files.map(file => file.path);
       productData.images = filePaths;
       productData.image = filePaths[0]; // Main image
     }
@@ -63,7 +63,7 @@ export const updateProduct = async (req, res) => {
     }
 
     if (req.files && req.files.length > 0) {
-      const filePaths = req.files.map(file => `/uploads/${file.filename}`);
+      const filePaths = req.files.map(file => file.path);
       productData.images = filePaths;
       productData.image = filePaths[0];
     }
