@@ -10,7 +10,7 @@ const productSchema = new mongoose.Schema(
         category: {
             type: String,
             required: true,
-            enum: ["Men", "Women", "Kids", "Accessories", "Offer"]
+            enum: ["Apparel", "Footwear", "Outerwear", "Accessories", "Offer"]
         },
         description: {
             type: String,
@@ -25,9 +25,21 @@ const productSchema = new mongoose.Schema(
             required: true,
             default: 0
         },
+        images: {
+            type: [String],
+            default: []
+        },
         image: {
             type: String,
             required: true
+        },
+        sizes: {
+            type: [String],
+            default: ["S", "M", "L", "XL"]
+        },
+        discount: {
+            type: Number,
+            default: 0
         },
         available: {
             type: Boolean,

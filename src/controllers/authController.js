@@ -12,6 +12,8 @@ const generateToken = (res, id) => {
         sameSite: "strict",
         maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
     });
+
+    return token;
 };
 
 export const adminRegister = async (req, res) => {
@@ -31,11 +33,12 @@ export const adminRegister = async (req, res) => {
         });
 
         if (admin) {
-            generateToken(res, admin._id);
+            const token = generateToken(res, admin._id);
             res.status(201).json({
                 _id: admin._id,
                 username: admin.username,
-                email: admin.email
+                email: admin.email,
+                token
             });
         } else {
             res.status(400).json({ message: "Invalid admin data" });
@@ -52,11 +55,12 @@ export const adminLogin = async (req, res) => {
         const admin = await Admin.findOne({ email });
 
         if (admin && (await admin.matchPassword(password))) {
-            generateToken(res, admin._id);
+            const token = generateToken(res, admin._id);
             res.json({
                 _id: admin._id,
                 username: admin.username,
-                email: admin.email
+                email: admin.email,
+                token
             });
         } else {
             res.status(401).json({ message: "Invalid email or password" });

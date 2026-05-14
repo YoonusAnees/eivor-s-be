@@ -5,6 +5,9 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+
+import path from "path";
 
 dotenv.config();
 
@@ -17,6 +20,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.get("/", (req, res) => {
   res.json({ message: "Clothing brand API running" });
@@ -24,6 +28,16 @@ app.get("/", (req, res) => {
 
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal Server Error",
+    error: process.env.NODE_ENV === "development" ? err.stack : {}
+  });
+});
 
 mongoose
   .connect(process.env.MONGO_URI)
