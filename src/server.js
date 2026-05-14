@@ -13,8 +13,22 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  "https://eivor.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:5000",
+  process.env.CLIENT_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 
